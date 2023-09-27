@@ -8,15 +8,6 @@ from constants import group_username
 
 bot = telebot.TeleBot(bot_token)
 
-# forwardmessage
-@bot.message_handler(commands=["send"])
-def send_forward_message(message):
-    msg = bot.send_message(message.chat.id, "Напиши свое сообщение ниже:")
-    bot.register_next_step_handler(msg, process_msg)
-
-def process_msg(message):  
-    bot.forward_message(group_username, message.chat.id, message.message_id)
-
 # start
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -29,6 +20,15 @@ def send_welcome(message):
     main_menu.add(button1, button2, button3)
     bot.send_message(message.from_user.id, "Чем я могу тебе помочь:", reply_markup=main_menu)
 
+# forwardmessage
+@bot.message_handler(commands=["send"])
+def send_forward_message(message):
+    msg = bot.send_message(message.chat.id, "Напиши свое сообщение ниже:")
+    bot.register_next_step_handler(msg, process_msg)
+
+def process_msg(message):  
+    bot.forward_message(group_username, message.chat.id, message.message_id)
+
 # forwardmessage from mainmenu
 @bot.callback_query_handler(func=lambda call: call.data == "send")
 def callback_send(call):
@@ -39,7 +39,7 @@ brands_recomend = {}
 with open('brands_recomend.csv', newline='', encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
     for row in reader:
-        # Добавляем пару ключ-значение в словарь
+        # add key-value in to the dictionary
         brands_recomend[row['brand']] = row['recomend']
 
 @bot.callback_query_handler(func=lambda call: True)
